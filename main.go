@@ -12,6 +12,7 @@ import (
 	"go-opentelemetry-example/infrastructure/opentelemetry"
 	"go-opentelemetry-example/repository"
 	"go-opentelemetry-example/usecase"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 )
 
 const (
@@ -34,6 +35,8 @@ func main() {
 	//)
 
 	r := mux.NewRouter()
+
+	r.Use(otelmux.Middleware("my-server"))
 
 	createUserHandler := handler.NewCreateUser(
 		usecase.NewCreateAccount(
