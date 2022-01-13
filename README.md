@@ -3,9 +3,8 @@
     <img src="_images/opentelemetry.png" />
 </p>
 
-## Objective
 
-Example of trace instrumentation in Golang applications using the [opentelemetry](https://opentelemetry.io/) pattern.
+Example of trace instrumentation in Golang applications using the [opentelemetry](https://opentelemetry.io/).
 
 ## Requirements/dependencies
 - Docker

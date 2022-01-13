@@ -24,17 +24,6 @@ func main() {
 	shutdownTracer := opentelemetry.NewTracer()
 	defer shutdownTracer()
 
-	//shutdownMetric := opentelemetry.InitMetric()
-	//defer shutdownMetric()
-
-	//meter := global.Meter("demo-server-meter")
-	//serverAttribute := attribute.String("server-attribute", "foo")
-	//commonLabels := []attribute.KeyValue{serverAttribute}
-	//requestCount := metric.Must(meter).NewInt64Counter(
-	//	"demo_server/request_counts",
-	//	metric.WithDescription("The number of requests received"),
-	//)
-
 	r := mux.NewRouter()
 	r.Use(otelmux.Middleware(DefaultAppName))
 
