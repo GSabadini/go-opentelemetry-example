@@ -2,11 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"go.opentelemetry.io/otel/trace"
 	"log"
 	"net/http"
 
+	"go.opentelemetry.io/otel/attribute"
 	otelcodes "go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 
 	"go-opentelemetry-example/usecase"
 )
@@ -30,6 +31,10 @@ func (c CreateUser) Handle(w http.ResponseWriter, r *http.Request) {
 	var input usecase.CreateAccountInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		log.Print("Handler execute error", err)
+
+		span.SetStatus(otelcodes.Error, "Handler execute error")
+		span.RecordError(err)
+
 		_ = response(w, err, http.StatusBadRequest)
 	}
 	defer r.Body.Close()
@@ -37,12 +42,19 @@ func (c CreateUser) Handle(w http.ResponseWriter, r *http.Request) {
 	output, err := c.uc.Execute(ctx, input)
 	if err != nil {
 		log.Print("Handler execute error", err)
+
+		span.SetStatus(otelcodes.Error, "Handler execute error")
+		span.RecordError(err)
+
 		_ = response(w, err, http.StatusInternalServerError)
 	}
 
-	span.SetStatus(otelcodes.Ok, "Handler execute success")
-
 	log.Print("Handler execute success")
+
+	span.AddEvent("Users", trace.WithAttributes(attribute.String("ID", output.ID)))
+	span.SetStatus(otelcodes.Ok, "Handler execute success")
+	span.SetAttributes(attribute.String("Test", "Test"))
+
 	_ = response(w, output, http.StatusCreated)
 }
 

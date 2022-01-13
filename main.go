@@ -6,17 +6,18 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/otel"
 
 	"go-opentelemetry-example/handler"
 	"go-opentelemetry-example/infrastructure/opentelemetry"
 	"go-opentelemetry-example/repository"
 	"go-opentelemetry-example/usecase"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 )
 
 const (
-	PORT = 8080
+	PORT           = 8080
+	DefaultAppName = ""
 )
 
 func main() {
@@ -35,15 +36,16 @@ func main() {
 	//)
 
 	r := mux.NewRouter()
+	r.Use(otelmux.Middleware(DefaultAppName))
 
-	r.Use(otelmux.Middleware("my-server"))
+	tracer := otel.Tracer(DefaultAppName)
 
 	createUserHandler := handler.NewCreateUser(
 		usecase.NewCreateAccount(
-			repository.NewCreateAccount(otel.Tracer("")),
-			otel.Tracer(""),
+			repository.NewCreateAccount(tracer),
+			tracer,
 		),
-		otel.Tracer(""),
+		tracer,
 	)
 
 	r.HandleFunc("/users", createUserHandler.Handle).Methods(http.MethodPost)

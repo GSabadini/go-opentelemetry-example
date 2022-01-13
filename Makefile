@@ -4,7 +4,7 @@ up:
 down:
 	docker-compose down --remove-orphans
 
-run:
+start:
 	go run .
 
 request:

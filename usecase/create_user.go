@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
+	"log"
+
 	otelcodes "go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
-	"log"
 
 	"go-opentelemetry-example/domain"
 )
@@ -44,12 +45,17 @@ func (c createAccount) Execute(
 
 	if err := c.repo.Create(ctx, user); err != nil {
 		log.Print("Usecase execute error", err)
+
+		span.SetStatus(otelcodes.Error, "Handler execute error")
+		span.RecordError(err)
+
 		return CreateAccountOutput{}, err
 	}
 
+	log.Print("Usecase execute success")
+
 	span.SetStatus(otelcodes.Ok, "Usecase execute success")
 
-	log.Print("Usecase execute success")
 	return CreateAccountOutput{
 		ID: user.ID(),
 	}, nil
